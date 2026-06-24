@@ -1,50 +1,65 @@
-# Welcome to your Expo app 👋
+# Rydeu React Native Assignment
 
-This is an [Expo](https://expo.dev) project created with [`create-expo-app`](https://www.npmjs.com/package/create-expo-app).
+Expo React Native app for the Rydeu developer assignment. It includes a local customer login flow, persisted Redux auth state, a protected home screen, and a custom six-month Moment.js date/time picker.
 
-## Get started
+## Features
 
-1. Install dependencies
+- One-field local customer login while API verification is temporarily disabled
+- First launch opens the login screen until a session is saved
+- Redux Toolkit state for authentication and selected pickup date/time
+- Temporary in-memory demo auth while native storage/API checks are disabled
+- Protected home route with user details and selected pickup schedule
+- Custom Moment.js calendar showing six months
+- Bottom-sheet date/time selection UI
 
-   ```bash
-   npm install
-   ```
+## Demo Login
 
-2. Start the app
-
-   ```bash
-   npx expo start
-   ```
-
-In the output, you'll find options to open the app in a
-
-- [development build](https://docs.expo.dev/develop/development-builds/introduction/)
-- [Android emulator](https://docs.expo.dev/workflow/android-studio-emulator/)
-- [iOS simulator](https://docs.expo.dev/workflow/ios-simulator/)
-- [Expo Go](https://expo.dev/go), a limited sandbox for trying out app development with Expo
-
-You can start developing by editing the files inside the **app** directory. This project uses [file-based routing](https://docs.expo.dev/router/introduction).
-
-## Get a fresh project
-
-When you're ready, run:
-
-```bash
-npm run reset-project
+```text
+Email: rydeu@email10p.org
 ```
 
-This command will move the starter code to the **app-example** directory and create a blank **app** directory where you can start developing.
+## Getting Started
 
-## Learn more
+Use Node 20 or 22. Node 25 currently trips an Expo CLI port-scanner error before Metro starts.
 
-To learn more about developing your project with Expo, look at the following resources:
+```bash
+npm install
+npm run start
+```
 
-- [Expo documentation](https://docs.expo.dev/): Learn fundamentals, or go into advanced topics with our [guides](https://docs.expo.dev/guides).
-- [Learn Expo tutorial](https://docs.expo.dev/tutorial/introduction/): Follow a step-by-step tutorial where you'll create a project that runs on Android, iOS, and the web.
+Then open the app in Expo Go, an Android emulator, or an iOS simulator.
 
-## Join the community
+## Useful Scripts
 
-Join our community of developers creating universal apps.
+```bash
+npm run start
+npm run android
+npm run ios
+npm run web
+npm run lint
+```
 
-- [Expo on GitHub](https://github.com/expo/expo): View our open source platform and contribute.
-- [Discord community](https://chat.expo.dev): Chat with Expo users and ask questions.
+## Project Structure
+
+```text
+app/
+  _layout.tsx                  App providers and protected routing shell
+  index.tsx                    Authenticated home screen
+  login.tsx                    Login screen
+components/
+  bottom-sheet/                Reusable bottom-sheet provider and manager
+  calendar/                    Custom Moment.js date/time picker
+  ui/                          Shared app UI primitives
+constants/
+  app-theme.ts                 App color and theme tokens
+services/
+  auth-service.ts              Login API and persisted session helpers
+store/
+  authSlice.ts                 Auth state and async actions
+  calendarSlice.ts             Selected date/time state
+  index.ts                     Redux store setup and typed hooks
+```
+
+## Notes
+
+The calendar is implemented in-app with Moment.js rather than using a native date picker library, as required by the assignment. The login service currently creates an in-memory local session from the email field; the Redux slice is already structured so real API and storage can be restored inside `services/auth-service.ts`.
