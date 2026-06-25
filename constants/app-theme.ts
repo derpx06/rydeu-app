@@ -1,28 +1,32 @@
 import { useColorScheme } from 'react-native';
+import { useSelector } from 'react-redux';
+import { RootState } from '@/store';
 
 const palette = {
   white: '#FFFFFF',
-  mist: '#F4F7F9',
-  cloud: '#E8EEF2',
+  mist: '#F8FAFC',
+  cloud: '#F1F5F9',
   pureBlack: '#000000',
-  ink: '#111827',
+  ink: '#0F172A',
   slate: '#334155',
   muted: '#64748B',
-  placeholder: 'rgba(51, 65, 85, 0.42)',
-  border: '#D9E2E8',
-  teal: '#0F766E',
-  tealBright: '#14B8A6',
-  tealSoft: '#E0F2F1',
-  blue: '#153E75',
-  sky: '#DFF2FF',
-  coral: '#E85D3F',
-  amber: '#F2A93B',
-  green: '#138167',
-  red: '#D64550',
-  darkSurface: '#17212B',
-  darkElevated: '#202C38',
-  darkBorder: '#334455',
-  transparent: '#00000000',
+  placeholder: 'rgba(15, 23, 42, 0.35)',
+  border: '#E2E8F0',
+
+  monoBlack: '#000000',
+  monoWhite: '#FFFFFF',
+  monoSoft: '#F1F5F9',
+  monoDark: '#1E293B',
+  monoGray: '#475569',
+  monoLightGray: '#94A3B8',
+
+  amber: '#D97706',
+  green: '#15803D',
+  red: '#DC2626',
+
+  darkSurface: '#121824',
+  darkElevated: '#1E293B',
+  darkBorder: '#334155',
 };
 
 const lightTheme = {
@@ -32,7 +36,7 @@ const lightTheme = {
     card: palette.white,
     surface: palette.cloud,
     elevated: palette.white,
-    backdrop: 'rgba(0, 0, 0, 0.35)',
+    backdrop: 'rgba(0, 0, 0, 0.45)',
   },
   text: {
     primary: palette.ink,
@@ -41,70 +45,69 @@ const lightTheme = {
     inverse: palette.white,
     placeholder: palette.placeholder,
   },
-  border: {
-    default: palette.border,
-    strong: palette.slate,
-  },
+  border: { default: palette.border, strong: palette.slate },
   brand: {
-    primary: palette.teal,
-    primaryDark: palette.blue,
-    accent: palette.coral,
-    gradient: [palette.blue, palette.teal, palette.coral],
+    primary: palette.monoBlack,
+    primaryDark: palette.monoDark,
+    accent: palette.monoDark,
+    gradient: [palette.monoBlack, palette.monoDark, palette.monoGray],
   },
   status: {
     success: palette.green,
     warning: palette.amber,
     error: palette.red,
-    info: palette.blue,
+    info: palette.monoDark,
   },
-  shadow: 'rgba(17, 24, 39, 0.16)',
+  shadow: 'rgba(15, 23, 42, 0.08)',
   bottomSheet: {
-    handle: 'rgba(0, 0, 0, 0.24)',
-    backdrop: 'rgba(0, 0, 0, 0.5)',
+    handle: 'rgba(0, 0, 0, 0.18)',
+    backdrop: 'rgba(0, 0, 0, 0.55)',
   },
 };
 
 const darkTheme = {
   ...lightTheme,
   bg: {
-    app: '#0C1218',
+    app: '#000000',
     card: palette.darkSurface,
     surface: palette.darkElevated,
-    elevated: '#243240',
-    backdrop: 'rgba(0, 0, 0, 0.72)',
+    elevated: '#1E293B',
+    backdrop: 'rgba(0, 0, 0, 0.76)',
   },
   text: {
-    primary: palette.mist,
-    secondary: '#B6C4CF',
-    muted: '#91A2AF',
+    primary: palette.cloud,
+    secondary: '#94A3B8',
+    muted: '#64748B',
     inverse: palette.pureBlack,
-    placeholder: 'rgba(255, 255, 255, 0.42)',
+    placeholder: 'rgba(255, 255, 255, 0.35)',
   },
   border: {
     default: palette.darkBorder,
-    strong: '#667789',
+    strong: '#475569',
   },
   brand: {
-    primary: palette.tealBright,
-    primaryDark: palette.blue,
-    accent: palette.coral,
-    gradient: [palette.blue, palette.teal, palette.coral],
+    primary: palette.monoWhite,
+    primaryDark: palette.monoLightGray,
+    accent: palette.monoLightGray,
+    gradient: [palette.monoWhite, palette.monoLightGray, palette.monoGray],
   },
-  shadow: 'rgba(0, 0, 0, 0.45)',
+  shadow: 'rgba(0, 0, 0, 0.5)',
   bottomSheet: {
-    handle: 'rgba(255, 255, 255, 0.65)',
-    backdrop: 'rgba(0, 0, 0, 0.82)',
+    handle: 'rgba(255, 255, 255, 0.45)',
+    backdrop: 'rgba(0, 0, 0, 0.85)',
   },
 };
 
 export type AppTheme = typeof lightTheme;
 
 export function useAppTheme() {
-  const colorScheme = useColorScheme();
-  return colorScheme === 'dark' ? darkTheme : lightTheme;
+  const systemColorScheme = useColorScheme();
+  const themeMode = useSelector((state: RootState) => state.theme.mode);
+
+  if (themeMode === 'dark') return darkTheme;
+  if (themeMode === 'light') return lightTheme;
+  
+  return systemColorScheme === 'dark' ? darkTheme : lightTheme;
 }
 
-export const appThemes = {
-  light: lightTheme,
-  dark: darkTheme,
-};
+export const appThemes = { light: lightTheme, dark: darkTheme };

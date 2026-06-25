@@ -24,6 +24,7 @@ type AppButtonProps = Omit<PressableProps, 'style'> & {
   loading?: boolean;
   children?: ReactNode;
   style?: StyleProp<ViewStyle>;
+  backgroundColor?: string;
 };
 
 export function AppButton({
@@ -33,6 +34,7 @@ export function AppButton({
   loading = false,
   disabled,
   style,
+  backgroundColor,
   onPress,
   children,
   ...props
@@ -52,14 +54,14 @@ export function AppButton({
   const content = (
     <View style={styles.content}>
       {loading ? (
-        <ActivityIndicator color={variant === 'primary' ? theme.text.inverse : theme.brand.primary} />
+        <ActivityIndicator color={variant === 'primary' || backgroundColor ? '#FFFFFF' : theme.brand.primary} />
       ) : (
         <>
           {icon ? (
             <Ionicons
               name={icon}
               size={18}
-              color={variant === 'primary' ? theme.text.inverse : theme.brand.primary}
+              color={variant === 'primary' || backgroundColor ? '#FFFFFF' : theme.brand.primary}
             />
           ) : null}
           {title ? (
@@ -67,7 +69,7 @@ export function AppButton({
               variant="label"
               style={[
                 styles.text,
-                { color: variant === 'primary' ? theme.text.inverse : theme.brand.primary },
+                { color: variant === 'primary' || backgroundColor ? '#FFFFFF' : theme.brand.primary },
               ]}>
               {title}
             </AppText>
@@ -79,14 +81,34 @@ export function AppButton({
     </View>
   );
 
+  // Custom solid background color takes precedence
+  if (backgroundColor) {
+    return (
+      <Pressable
+        {...props}
+        disabled={isDisabled}
+        onPress={handlePress}
+        style={({ pressed }) => [
+          styles.pressable,
+          styles.gradient,
+          { backgroundColor },
+          isDisabled && styles.disabled,
+          pressed && styles.pressed,
+          style,
+        ]}>
+        {content}
+      </Pressable>
+    );
+  }
+
   if (variant === 'primary') {
     return (
       <Pressable
         {...props}
         disabled={isDisabled}
         onPress={handlePress}
-        style={({ pressed }) => [styles.pressable, isDisabled && styles.disabled, pressed && styles.pressed, style]}>
-        <GradientBackground style={styles.gradient}>{content}</GradientBackground>
+        style={({ pressed }) => [styles.pressable, isDisabled && styles.disabled, pressed && styles.pressed]}>
+        <GradientBackground style={[styles.gradient, style]}>{content}</GradientBackground>
       </Pressable>
     );
   }
@@ -99,7 +121,7 @@ export function AppButton({
       style={({ pressed }) => [
         styles.outline,
         {
-          backgroundColor: variant === 'ghost' ? theme.palette.transparent : theme.bg.surface,
+          backgroundColor: variant === 'ghost' ? 'transparent' : theme.bg.surface,
           borderColor: variant === 'danger' ? theme.status.error : theme.border.default,
         },
         isDisabled && styles.disabled,
