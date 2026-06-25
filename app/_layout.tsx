@@ -8,7 +8,9 @@ import { ActivityIndicator, StyleSheet, View } from 'react-native';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { Provider } from 'react-redux';
+import { router } from 'expo-router';
 
+import { ErrorBoundary } from '@/components/error/error-boundary';
 import { BottomSheetProvider } from '@/components/bottom-sheet/bottom-sheet-provider';
 import { useAppTheme } from '@/constants/app-theme';
 import { useColorScheme } from '@/hooks/use-color-scheme';
@@ -39,12 +41,18 @@ function RootNavigator() {
 
   return (
     <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
-      <Stack screenOptions={{ headerShown: false }}>
-        <Stack.Screen name="index" />
-        <Stack.Screen name="login" />
-        <Stack.Screen name="(tabs)" />
-      </Stack>
-      <StatusBar style="auto" />
+      <ErrorBoundary>
+        <BottomSheetProvider>
+          <Stack screenOptions={{ headerShown: false }}>
+            <Stack.Screen name="index" />
+            <Stack.Screen name="login" />
+            <Stack.Screen name="onboarding" />
+            <Stack.Screen name="profile" />
+            <Stack.Screen name="(tabs)" />
+          </Stack>
+        </BottomSheetProvider>
+        <StatusBar style="auto" />
+      </ErrorBoundary>
     </ThemeProvider>
   );
 }
@@ -54,9 +62,7 @@ export default function RootLayout() {
     <Provider store={store}>
       <GestureHandlerRootView style={styles.root}>
         <SafeAreaProvider>
-          <BottomSheetProvider>
-            <RootNavigator />
-          </BottomSheetProvider>
+          <RootNavigator />
         </SafeAreaProvider>
       </GestureHandlerRootView>
     </Provider>
