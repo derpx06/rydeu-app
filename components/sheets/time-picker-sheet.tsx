@@ -1,11 +1,11 @@
+import { TouchableOpacity } from '@gorhom/bottom-sheet';
+import { Ionicons } from '@expo/vector-icons';
 import moment from 'moment';
 import { useCallback, useMemo, useState, useEffect } from 'react';
 import {
   StyleSheet,
   View,
-  TouchableOpacity,
 } from 'react-native';
-import { Ionicons } from '@expo/vector-icons';
 
 import { useSheetId } from '@/components/bottom-sheet/bottom-sheet-context';
 import { SheetManager } from '@/components/bottom-sheet/use-sheet-controls';
