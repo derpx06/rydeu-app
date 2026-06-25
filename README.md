@@ -2,6 +2,9 @@
 
 A production-ready **React Native (Expo)** application developed as part of the **Rydeu React Native Developer Assignment**. The project demonstrates authentication, protected navigation, Redux state management, Google Maps integration, and a fully custom six-month calendar built with **Moment.js**.
 
+
+<img width="480" height="480" alt="image" src="https://github.com/user-attachments/assets/461a7767-0bc6-46d5-9506-4fca517e43df" />
+
 ---
 
 ## Assignment Overview
