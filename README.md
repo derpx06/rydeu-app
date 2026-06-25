@@ -4,6 +4,8 @@ Expo React Native app for the Rydeu developer assignment. It includes a local cu
 
 
 ##Screenshots
+Landing page
+<img width="681" height="1505" alt="image" src="https://github.com/user-attachments/assets/3aaed873-5e35-4f0d-8f7f-20ad0c0617e1" />
 
 Login Page
 <img width="681" height="1505" alt="image" src="https://github.com/user-attachments/assets/b2106005-91a5-4f13-bfcd-4ac2023b33aa" />
