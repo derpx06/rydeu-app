@@ -7,7 +7,8 @@ import {
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 
-import { useBottomSheet, useSheetId } from '@/components/bottom-sheet/bottom-sheet-context';
+import { useSheetId } from '@/components/bottom-sheet/bottom-sheet-context';
+import { SheetManager } from '@/components/bottom-sheet/use-sheet-controls';
 import { AppText } from '@/components/ui/app-text';
 import { useAppTheme } from '@/constants/app-theme';
 
@@ -19,7 +20,6 @@ type TimePickerSheetProps = {
 export function TimePickerSheet({ value, onChange }: TimePickerSheetProps) {
   const theme = useAppTheme();
   const sheetId = useSheetId();
-  const { updateSheet, closeSheet } = useBottomSheet();
 
   const initial = useMemo(() => moment(value || undefined), [value]);
   
@@ -40,18 +40,18 @@ export function TimePickerSheet({ value, onChange }: TimePickerSheetProps) {
 
     const nextValue = moment(value || undefined).hour(h24).minute(minute).second(0).millisecond(0);
     onChange(nextValue.toISOString());
-    closeSheet(sheetId || undefined);
-  }, [hour12, minute, amPm, value, onChange, closeSheet, sheetId]);
+    SheetManager.close(sheetId || undefined);
+  }, [hour12, minute, amPm, value, onChange, sheetId]);
 
   useEffect(() => {
     if (sheetId) {
-      updateSheet(sheetId, {
+      SheetManager.update(sheetId, {
         onSubmitPress: onConfirm,
         submitLabel: 'Set Time',
         enableScroll: false,
       });
     }
-  }, [sheetId, onConfirm, updateSheet]);
+  }, [sheetId, onConfirm]);
 
   const adjustHour = (delta: number) => {
     setHour12(prev => {
