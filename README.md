@@ -342,7 +342,6 @@ store/
 
 ---
 
-```markdown
 ---
 
 # UI & Performance Highlights
