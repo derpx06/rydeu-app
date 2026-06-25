@@ -19,21 +19,14 @@ type Props = {
 
 // Image mapping for different car types
 const CAR_IMAGES: Record<string, string[]> = {
-  'standard': [
-    'https://images.unsplash.com/photo-1552519507-da3b142c6e3d', // Toyota Camry
-    'https://images.unsplash.com/photo-1549317666-4d9e3c4c6f8e', // Honda Civic
+  'saloon': [
+    'https://images.unsplash.com/photo-1555215695-3004980ad54e?w=400&q=80', // BMW 5-series sedan
   ],
-  'premium': [
-    'https://images.unsplash.com/photo-1609521263047-f8f205293f24', // Mercedes
-    'https://images.unsplash.com/photo-1550355291-bbee04a92027', // BMW
+  'estate': [
+    'https://images.unsplash.com/photo-1580273916550-e323be2ae537?w=400&q=80', // BMW wagon
   ],
-  'suv': [
-    'https://images.unsplash.com/photo-1609521263047-f8f205293f24',
-    'https://images.unsplash.com/photo-1558618047-3c8c76ca5d2a', // Toyota RAV4
-  ],
-  'electric': [
-    'https://images.unsplash.com/photo-1617788138017-80ad455f5a1b', // Tesla Model 3
-    'https://images.unsplash.com/photo-1560958089-b8a1929d9d8b',
+  'executive': [
+    'https://images.unsplash.com/photo-1618843479313-40f8afb4b4d8?w=400&q=80', // Mercedes Executive sedan
   ],
 };
 
@@ -42,7 +35,7 @@ export function RideOptionCard({ option, distanceMeters, selected, onPress }: Pr
   const fare = computeFare(distanceMeters, option as any);
 
   const images = CAR_IMAGES[option.id.toLowerCase()] || [
-    'https://images.unsplash.com/photo-1552519507-da3b142c6e3d'
+    'https://images.unsplash.com/photo-1555215695-3004980ad54e?w=400&q=80'
   ];
 
   const mainImage = images[0];
@@ -51,7 +44,7 @@ export function RideOptionCard({ option, distanceMeters, selected, onPress }: Pr
     <TouchableOpacity
       style={[
         styles.card,
-        { 
+        {
           backgroundColor: theme.bg.card,
           borderColor: selected ? theme.brand.primary : theme.border.default,
         },
@@ -74,9 +67,9 @@ export function RideOptionCard({ option, distanceMeters, selected, onPress }: Pr
 
       {/* Label Row */}
       <View style={styles.labelRow}>
-        <AppText 
+        <AppText
           style={[
-            styles.label, 
+            styles.label,
             { color: theme.text.primary },
             selected && { color: theme.brand.primary }
           ]}
@@ -86,10 +79,10 @@ export function RideOptionCard({ option, distanceMeters, selected, onPress }: Pr
         </AppText>
 
         {selected && (
-          <Ionicons 
-            name="checkmark-circle" 
-            size={18} 
-            color={theme.brand.primary} 
+          <Ionicons
+            name="checkmark-circle"
+            size={18}
+            color={theme.brand.primary}
           />
         )}
       </View>
@@ -100,12 +93,12 @@ export function RideOptionCard({ option, distanceMeters, selected, onPress }: Pr
 const styles = StyleSheet.create({
   card: {
     width: 155,
-    height: 190,
+    height: 195,
     borderRadius: 22,
     borderWidth: 2,
     marginRight: 14,
     overflow: 'hidden',
-    position: 'relative',
+    justifyContent: 'space-between',
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 10 },
     shadowOpacity: 0.18,
@@ -135,15 +128,15 @@ const styles = StyleSheet.create({
   },
   carImage: {
     width: '100%',
-    height: 125,
-    marginTop: 35,
+    height: 90,
+    marginTop: 45,
   },
   labelRow: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
     paddingHorizontal: 14,
-    paddingVertical: 14,
+    paddingVertical: 12,
     borderTopWidth: 1,
     borderTopColor: 'rgba(0,0,0,0.06)',
   },

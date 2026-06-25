@@ -10,7 +10,8 @@ import {
   View,
 } from 'react-native';
 
-import { useBottomSheet, useSheetId } from '@/components/bottom-sheet/bottom-sheet-context';
+import { useSheetId } from '@/components/bottom-sheet/bottom-sheet-context';
+import { SheetManager } from '@/components/bottom-sheet/use-sheet-controls';
 import { TimePickerSheet } from '@/components/sheets/time-picker-sheet';
 import { AppText } from '@/components/ui/app-text';
 import { useAppTheme } from '@/constants/app-theme';
@@ -26,7 +27,6 @@ type ViewMode = 'calendar' | 'month' | 'year';
 export function DateTimePickerSheet({ value, onChange, minDate }: DateTimePickerSheetProps) {
   const theme = useAppTheme();
   const sheetId = useSheetId();
-  const { updateSheet, closeSheet, openSheet } = useBottomSheet();
 
   const minimumDate = useMemo(() => (minDate ? moment(minDate).startOf('day') : moment().startOf('day')), [minDate]);
   const initial = useMemo(() => {
@@ -43,19 +43,19 @@ export function DateTimePickerSheet({ value, onChange, minDate }: DateTimePicker
   const confirm = useCallback(() => {
     const final = selectedDate.clone().hour(selectedHour).minute(selectedMinute).second(0).millisecond(0);
     onChange(final.toISOString());
-    closeSheet(sheetId || undefined);
-  }, [selectedDate, selectedHour, selectedMinute, onChange, closeSheet, sheetId]);
+    SheetManager.close(sheetId || undefined);
+  }, [selectedDate, selectedHour, selectedMinute, onChange, sheetId]);
 
   useEffect(() => {
     if (sheetId) {
-      updateSheet(sheetId, {
+      SheetManager.update(sheetId, {
         onSubmitPress: viewMode === 'calendar' ? confirm : null,
         submitLabel: 'Save',
         snapPoints: viewMode === 'calendar' ? ['85%'] : ['65%'],
         enableScroll: viewMode === 'calendar',
       });
     }
-  }, [sheetId, confirm, viewMode, updateSheet]);
+  }, [sheetId, confirm, viewMode]);
 
   const handlePrevMonth = () => setCurrentMonth((prev) => prev.clone().subtract(1, 'month'));
   const handleNextMonth = () => setCurrentMonth((prev) => prev.clone().add(1, 'month'));
@@ -87,7 +87,7 @@ export function DateTimePickerSheet({ value, onChange, minDate }: DateTimePicker
 
   const handleOpenTimePicker = () => {
     const currentTime = selectedDate.clone().hour(selectedHour).minute(selectedMinute).toISOString();
-    openSheet(
+    SheetManager.open(
       <TimePickerSheet
         value={currentTime}
         onChange={(isoString) => {

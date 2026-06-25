@@ -34,7 +34,7 @@ import { setSelectedDateTime, setReturnDateTime, setPassengers, PassengerCounts,
 import { setRideDestination, setRidePickup } from '@/store/rideSlice';
 import { useAppDispatch, useAppSelector } from '@/store';
 
-const TAB_BAR_SHEET_CLEARANCE =0;
+const TAB_BAR_SHEET_CLEARANCE = 0;
 
 // Enable LayoutAnimation on Android
 if (Platform.OS === 'android' && UIManager.setLayoutAnimationEnabledExperimental) {
@@ -221,9 +221,7 @@ export default function HomeScreen() {
             resizeMode="contain"
           />
           <View style={styles.actionButtons}>
-            <TouchableOpacity style={[styles.iconButton, { backgroundColor: iconButtonBg }]} activeOpacity={0.7}>
-              <Ionicons name="search-outline" size={20} color={iconButtonColor} />
-            </TouchableOpacity>
+
             <TouchableOpacity style={[styles.iconButton, { backgroundColor: iconButtonBg }]} activeOpacity={0.7}>
               <Ionicons name="notifications-outline" size={20} color={iconButtonColor} />
               <View style={styles.badge} />
@@ -398,7 +396,7 @@ const styles = StyleSheet.create({
   bookingCard: {
     backgroundColor: '#FFFFFF',
     borderRadius: 24,
-    padding:12,
+    padding: 12,
     shadowColor: '#000000',
     shadowOffset: { width: 0, height: 10 },
     shadowOpacity: 0.06,
