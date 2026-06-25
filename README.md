@@ -1,4 +1,3 @@
-````markdown
 # Rydeu – React Native Developer Assignment
 
 A production-ready **React Native (Expo)** application developed as part of the **Rydeu React Native Developer Assignment**. The project demonstrates authentication, protected navigation, Redux state management, Google Maps integration, and a fully custom six-month calendar built with **Moment.js**.
@@ -421,7 +420,6 @@ The project follows modern React Native best practices:
 - Maintainable folder structure
 - Scalable project organization
 
-```
 
 
 # Notes
