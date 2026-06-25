@@ -26,11 +26,10 @@ import { DateTimePickerSheet } from '@/components/calendar/date-time-picker-shee
 import { DurationPickerSheet } from '@/components/sheets/duration-picker-sheet';
 import { LocationPickerSheet } from '@/components/sheets/location-picker-sheet';
 import { PassengerPickerSheet } from '@/components/sheets/passenger-picker-sheet';
-import { AppText } from '@/components/ui/app-text';
-import { TripTypeTabs, TripType } from '@/components/ui/trip-type-tabs';
+import {  TripType } from '@/components/ui/trip-type-tabs';
 import { useAppTheme } from '@/constants/app-theme';
 import { logout } from '@/store/authSlice';
-import { setSelectedDateTime, setReturnDateTime, setPassengers, PassengerCounts, setTripType, setDuration, Duration } from '@/store/calendarSlice';
+import { setSelectedDateTime, setReturnDateTime, setPassengers, PassengerCounts, Duration } from '@/store/calendarSlice';
 import { setRideDestination, setRidePickup } from '@/store/rideSlice';
 import { useAppDispatch, useAppSelector } from '@/store';
 
@@ -194,14 +193,7 @@ export default function HomeScreen() {
     );
   };
 
-  const handleSearch = () => {
-    const returnInfo = tripType === 'roundTrip' ? `\nReturn: ${formattedReturnDate} at ${formattedReturnTime}` : '';
-    const durationInfo = tripType === 'hourly' ? `\nDuration: ${formattedDuration}` : '';
-    Alert.alert(
-      'Rides Search',
-      `Mode: ${tripType}\nFrom: ${pickup?.name ?? '(not set)'}\nTo: ${dropoff?.name ?? '(not set)'}\nDate: ${formattedDate}\nPassengers: ${totalPassengers}${returnInfo}${durationInfo}`
-    );
-  };
+  
 
   const isDark = theme.bg.app === '#000000';
   const heroTextColor = isDark ? '#FFFFFF' : '#0F172A';

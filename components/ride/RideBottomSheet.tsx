@@ -83,7 +83,7 @@ export function RideBottomSheet({ visible, onConfirm, onPickupPress, onDestinati
 
   const distanceMeters = route?.distanceMeters ?? 0;
   const selectedOption = RIDE_OPTIONS.find((o) => o.id === selectedRideType) ?? RIDE_OPTIONS[0];
-  const fare = distanceMeters > 0 ? computeFare(distanceMeters, selectedOption) : null;
+  const fare = (distanceMeters > 0 && selectedOption) ? computeFare(distanceMeters, selectedOption) : null;
   const pickupDate = moment(selectedDateTimeIso);
   const returnDate = moment(returnDateTimeIso);
   const formattedDate = pickupDate.format('DD MMM, YYYY');

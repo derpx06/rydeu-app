@@ -26,26 +26,21 @@ export function DurationPickerSheet({ value, onChange }: DurationPickerSheetProp
   const { updateSheet, closeSheet } = useBottomSheet();
 
   const initialHours = value?.hours ?? 2;
-  const initialMinutes = value?.minutes ?? 0;
 
   const [selectedHour, setSelectedHour] = useState(initialHours);
-  const [selectedMinute, setSelectedMinute] = useState(initialMinutes);
 
   const hours = useMemo(() => Array.from({ length: 25 }, (_, i) => i), []);
-  const minutes = useMemo(() => Array.from({ length: 60 }, (_, i) => i), []);
 
   const hourScrollRef = useRef<ScrollView>(null);
-  const minuteScrollRef = useRef<ScrollView>(null);
 
   const onConfirm = useCallback(() => {
     let h = selectedHour;
-    let m = selectedMinute;
-    if (h === 0 && m === 0) {
+    if (h === 0) {
       h = 1;
     }
-    onChange({ hours: h, minutes: m });
+    onChange({ hours: h, minutes: 0 });
     closeSheet(sheetId || undefined);
-  }, [selectedHour, selectedMinute, onChange, closeSheet, sheetId]);
+  }, [selectedHour, onChange, closeSheet, sheetId]);
 
   useEffect(() => {
     if (sheetId) {
@@ -57,59 +52,39 @@ export function DurationPickerSheet({ value, onChange }: DurationPickerSheetProp
     }
   }, [sheetId, onConfirm, updateSheet]);
 
-  const handleScrollTo = (type: 'hour' | 'minute', val: number) => {
-    if (type === 'hour') {
-      setSelectedHour(val);
-      hourScrollRef.current?.scrollTo({ y: val * ITEM_HEIGHT, animated: true });
-    } else {
-      setSelectedMinute(val);
-      minuteScrollRef.current?.scrollTo({ y: val * ITEM_HEIGHT, animated: true });
-    }
+  const handleScrollTo = (val: number, animated = true) => {
+    setSelectedHour(val);
+    hourScrollRef.current?.scrollTo({ y: val * ITEM_HEIGHT, animated });
   };
 
-  const increment = (type: 'hour' | 'minute') => {
-    if (type === 'hour') {
-      const next = (selectedHour + 1) % 25;
-      handleScrollTo('hour', next);
-    } else {
-      const next = (selectedMinute + 1) % 60;
-      handleScrollTo('minute', next);
-    }
+  const increment = () => {
+    const next = (selectedHour + 1) % 25;
+    handleScrollTo(next);
   };
 
-  const decrement = (type: 'hour' | 'minute') => {
-    if (type === 'hour') {
-      const next = (selectedHour - 1 + 25) % 25;
-      handleScrollTo('hour', next);
-    } else {
-      const next = (selectedMinute - 1 + 60) % 60;
-      handleScrollTo('minute', next);
-    }
+  const decrement = () => {
+    const next = (selectedHour - 1 + 25) % 25;
+    handleScrollTo(next);
   };
 
   useEffect(() => {
     const timer = setTimeout(() => {
       const hourIndex = hours.indexOf(selectedHour);
-      const minuteIndex = minutes.indexOf(selectedMinute);
       if (hourIndex !== -1 && hourScrollRef.current) {
         hourScrollRef.current.scrollTo({ y: hourIndex * ITEM_HEIGHT, animated: false });
       }
-      if (minuteIndex !== -1 && minuteScrollRef.current) {
-        minuteScrollRef.current.scrollTo({ y: minuteIndex * ITEM_HEIGHT, animated: false });
-      }
     }, 100);
     return () => clearTimeout(timer);
-  }, [selectedHour, selectedMinute, hours, minutes]);
+  }, [selectedHour, hours]);
 
   const renderPickerColumn = (
-    type: 'hour' | 'minute',
     data: number[],
     selected: number,
     ref: React.RefObject<ScrollView | null>,
     unit: string
   ) => (
     <View style={styles.columnContainer}>
-      <TouchableOpacity style={styles.stepBtn} onPress={() => decrement(type)}>
+      <TouchableOpacity style={styles.stepBtn} onPress={decrement}>
         <Ionicons name="chevron-up" size={20} color={theme.brand.primary} />
       </TouchableOpacity>
 
@@ -124,8 +99,7 @@ export function DurationPickerSheet({ value, onChange }: DurationPickerSheetProp
             const index = Math.round(y / ITEM_HEIGHT);
             const val = data[index];
             if (val !== undefined && val !== selected) {
-              if (type === 'hour') setSelectedHour(val);
-              else setSelectedMinute(val);
+              setSelectedHour(val);
             }
           }}
           contentContainerStyle={{
@@ -139,7 +113,7 @@ export function DurationPickerSheet({ value, onChange }: DurationPickerSheetProp
               <TouchableOpacity 
                 key={item} 
                 style={[styles.item, { height: ITEM_HEIGHT }]}
-                onPress={() => handleScrollTo(type, item)}
+                onPress={() => handleScrollTo(item)}
                 activeOpacity={0.7}
               >
                 <AppText
@@ -161,7 +135,7 @@ export function DurationPickerSheet({ value, onChange }: DurationPickerSheetProp
         </ScrollView>
       </View>
 
-      <TouchableOpacity style={styles.stepBtn} onPress={() => increment(type)}>
+      <TouchableOpacity style={styles.stepBtn} onPress={increment}>
         <Ionicons name="chevron-down" size={20} color={theme.brand.primary} />
       </TouchableOpacity>
     </View>
@@ -185,9 +159,7 @@ export function DurationPickerSheet({ value, onChange }: DurationPickerSheetProp
         />
         
         <View style={styles.pickerContent}>
-          {renderPickerColumn('hour', hours, selectedHour, hourScrollRef, 'hr')}
-          <View style={[styles.separator, { height: ITEM_HEIGHT * VISIBLE_ITEMS }]} />
-          {renderPickerColumn('minute', minutes, selectedMinute, minuteScrollRef, 'min')}
+          {renderPickerColumn(hours, selectedHour, hourScrollRef, 'hr')}
         </View>
       </View>
     </View>
@@ -208,7 +180,7 @@ const styles = StyleSheet.create({
     position: 'relative',
   },
   pickerContent: {
-    flex: 1,
+    width: '62%',
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',

@@ -33,7 +33,7 @@ type RideState = {
   route: RouteInfo | null;
   routeLoading: boolean;
   routeError: string | null;
-  selectedRideType: RideType;
+  selectedRideType: RideType | null;
 };
 
 const initialState: RideState = {
@@ -42,7 +42,7 @@ const initialState: RideState = {
   route: null,
   routeLoading: false,
   routeError: null,
-  selectedRideType: 'saloon',
+  selectedRideType: null,
 };
 
 const rideSlice = createSlice({
@@ -72,7 +72,7 @@ const rideSlice = createSlice({
       state.routeError = action.payload;
       state.routeLoading = false;
     },
-    setSelectedRideType: (state, action: PayloadAction<RideType>) => {
+    setSelectedRideType: (state, action: PayloadAction<RideType | null>) => {
       state.selectedRideType = action.payload;
     },
     clearRide: (state) => {

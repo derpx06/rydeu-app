@@ -84,7 +84,10 @@ export function LocationSearchOverlay({ visible, initialField, onClose, showQuic
       setActiveField(initialField);
       setQuery('');
       setSuggestions([]);
-      setTimeout(() => inputRef.current?.focus(), 350);
+      // Ensure focus is called after a slight delay to allow the keyboard to invoke reliably
+      setTimeout(() => {
+        inputRef.current?.focus();
+      }, 400);
     }
   }, [visible, initialField, slideAnim]);
 
@@ -196,12 +199,18 @@ export function LocationSearchOverlay({ visible, initialField, onClose, showQuic
                   borderColor: activeField === f ? theme.brand.primary : theme.border.default
                 }
               ]}
-              onPress={() => { setActiveField(f); setQuery(''); setSuggestions([]); }}
+              onPress={() => {
+                setActiveField(f);
+                setQuery('');
+                setSuggestions([]);
+                // Automatically refocus input to ensure keyboard appears/stays open
+                setTimeout(() => inputRef.current?.focus(), 50);
+              }}
             >
               <AppText style={[
                 styles.fieldTabText,
                 activeField === f && styles.fieldTabTextActive,
-                { color: activeField === f ? '#FFFFFF' : theme.text.secondary }
+                { color: activeField === f ? theme.text.inverse : theme.text.secondary }
               ]}>
                 {f === 'pickup' ? 'Pickup' : 'Destination'}
               </AppText>
@@ -211,13 +220,17 @@ export function LocationSearchOverlay({ visible, initialField, onClose, showQuic
       </View>
 
       {/* ── Search Input ─────────────────────────────────────────────────────── */}
-      <View style={[
-        styles.inputWrap,
-        {
-          backgroundColor: theme.bg.card,
-          borderColor: theme.border.default,
-        }
-      ]}>
+      <TouchableOpacity
+        activeOpacity={1}
+        onPress={() => inputRef.current?.focus()}
+        style={[
+          styles.inputWrap,
+          {
+            backgroundColor: theme.bg.card,
+            borderColor: theme.border.default,
+          }
+        ]}
+      >
         <View style={[
           styles.dotIndicator, 
           activeField === 'pickup' ? styles.dotPickup : [styles.dotDest, { backgroundColor: theme.text.primary }]
@@ -240,7 +253,7 @@ export function LocationSearchOverlay({ visible, initialField, onClose, showQuic
             <Ionicons name="close-circle" size={22} color={theme.text.secondary} />
           </TouchableOpacity>
         ) : null}
-      </View>
+      </TouchableOpacity>
 
       {/* ── Error ────────────────────────────────────────────────────────────── */}
       {apiError && (

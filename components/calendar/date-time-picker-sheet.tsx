@@ -1,15 +1,17 @@
 import { Ionicons } from '@expo/vector-icons';
-import { TouchableOpacity } from '@gorhom/bottom-sheet';
 import moment, { Moment } from 'moment';
 import { useCallback, useEffect, useMemo, useState } from 'react';
+import type { ReactNode } from 'react';
 import {
   FlatList,
   Pressable,
   StyleSheet,
+  TouchableOpacity,
   View,
 } from 'react-native';
 
 import { useSheetId } from '@/components/bottom-sheet/bottom-sheet-context';
+import type { BottomSheetOptions } from '@/components/bottom-sheet/bottom-sheet-context';
 import { SheetManager } from '@/components/bottom-sheet/use-sheet-controls';
 import { TimePickerSheet } from '@/components/sheets/time-picker-sheet';
 import { AppText } from '@/components/ui/app-text';
@@ -30,87 +32,164 @@ type MonthYearPickerProps = {
   onSelectYear: (year: number) => void;
 };
 
-export function MonthYearPickerSheet({ currentMonth, tab: initialTab, months, years, onSelectMonth, onSelectYear }: MonthYearPickerProps) {
+let nestedSheetOpenPending = false;
+
+
+
+export function MonthYearPickerSheet({
+  currentMonth,
+  tab: initialTab,
+  months,
+  years,
+  onSelectMonth,
+  onSelectYear,
+}: MonthYearPickerProps) {
   const theme = useAppTheme();
   const sheetId = useSheetId();
   const [activeTab, setActiveTab] = useState<'month' | 'year'>(initialTab);
 
   return (
     <View style={[styles.container, { backgroundColor: theme.bg.app }]}>
-      {/* Tab bar */}
-      <View style={[styles.tabContainer, { backgroundColor: theme.bg.surface, borderColor: theme.border.default }]}>
+      {/* Tab Bar */}
+      <View
+        style={[
+          styles.tabContainer,
+          {
+            backgroundColor: theme.bg.surface,
+            borderColor: theme.border.default,
+          },
+        ]}
+      >
         <TouchableOpacity
-          style={[styles.tabButton, activeTab === 'month' && { backgroundColor: theme.brand.primary }]}
+          style={[
+            styles.tabButton,
+            activeTab === 'month' && {
+              backgroundColor: theme.brand.primary,
+            },
+          ]}
+          activeOpacity={0.8}
           onPress={() => setActiveTab('month')}
-          activeOpacity={0.8}
         >
-          <AppText style={[styles.tabText, { color: activeTab === 'month' ? '#FFF' : theme.text.primary }]}>Month</AppText>
+          <AppText
+            style={[
+              styles.tabText,
+              {
+                color:
+                  activeTab === 'month'
+                    ? '#FFF'
+                    : theme.text.primary,
+              },
+            ]}
+          >
+            Month
+          </AppText>
         </TouchableOpacity>
+
         <TouchableOpacity
-          style={[styles.tabButton, activeTab === 'year' && { backgroundColor: theme.brand.primary }]}
-          onPress={() => setActiveTab('year')}
+          style={[
+            styles.tabButton,
+            activeTab === 'year' && {
+              backgroundColor: theme.brand.primary,
+            },
+          ]}
           activeOpacity={0.8}
+          onPress={() => setActiveTab('year')}
         >
-          <AppText style={[styles.tabText, { color: activeTab === 'year' ? '#FFF' : theme.text.primary }]}>Year</AppText>
+          <AppText
+            style={[
+              styles.tabText,
+              {
+                color:
+                  activeTab === 'year'
+                    ? '#FFF'
+                    : theme.text.primary,
+              },
+            ]}
+          >
+            Year
+          </AppText>
         </TouchableOpacity>
       </View>
 
       {activeTab === 'month' ? (
         <View style={styles.grid}>
-          {months.map((m, i) => {
-            const isSelected = currentMonth.month() === i;
+          {months.map((month, index) => {
+            const isSelected = currentMonth.month() === index;
+
             return (
               <TouchableOpacity
-                key={m}
+                key={month}
                 style={[
                   styles.gridItem,
                   {
-                    borderColor: isSelected ? theme.brand.primary : theme.border.default,
-                    backgroundColor: isSelected ? theme.brand.primary : 'transparent',
+                    borderColor: isSelected
+                      ? theme.brand.primary
+                      : theme.border.default,
+                    backgroundColor: isSelected
+                      ? theme.brand.primary
+                      : 'transparent',
                   },
                 ]}
                 onPress={() => {
-                  onSelectMonth(i);
+                  onSelectMonth(index);
                   SheetManager.close(sheetId || undefined);
                 }}
               >
-                <AppText style={[styles.gridText, { color: isSelected ? '#FFF' : theme.text.primary }]}>
-                  {m.substring(0, 3)}
+                <AppText
+                  style={[
+                    styles.gridText,
+                    {
+                      color: isSelected
+                        ? '#FFF'
+                        : theme.text.primary,
+                    },
+                  ]}
+                >
+                  {month.substring(0, 3)}
                 </AppText>
               </TouchableOpacity>
             );
           })}
         </View>
       ) : (
-        <FlatList
-          data={years}
-          keyExtractor={item => item.toString()}
-          style={{ flex: 1 }}
-          initialScrollIndex={Math.max(0, years.indexOf(currentMonth.year()))}
-          getItemLayout={(_, index) => ({ length: 52, offset: 52 * index, index })}
-          renderItem={({ item }) => {
-            const isSelected = currentMonth.year() === item;
+        <View style={styles.yearList}>
+          {years.map((year) => {
+            const isSelected = currentMonth.year() === year;
+
             return (
               <TouchableOpacity
+                key={year}
                 style={[
                   styles.yearItem,
                   {
                     borderBottomColor: theme.border.default,
-                    backgroundColor: isSelected ? theme.brand.primary : 'transparent',
+                    backgroundColor: isSelected
+                      ? theme.brand.primary
+                      : 'transparent',
                   },
                 ]}
                 onPress={() => {
-                  onSelectYear(item);
+                  onSelectYear(year);
                   SheetManager.close(sheetId || undefined);
                 }}
+                activeOpacity={0.8}
               >
-                <AppText style={[styles.yearText, { color: isSelected ? '#FFF' : theme.text.primary }]}>{item}</AppText>
+                <AppText
+                  style={[
+                    styles.yearText,
+                    {
+                      color: isSelected
+                        ? '#FFF'
+                        : theme.text.primary,
+                    },
+                  ]}
+                >
+                  {year}
+                </AppText>
               </TouchableOpacity>
             );
-          }}
-          contentContainerStyle={styles.yearList}
-          showsVerticalScrollIndicator={false}
-        />
+          })}
+        </View>
       )}
     </View>
   );
@@ -143,7 +222,6 @@ export function DateTimePickerSheet({ value, onChange, minDate }: DateTimePicker
         onSubmitPress: confirm,
         submitLabel: 'Save',
         snapPoints: ['85%'],
-        enableScroll: true,
       });
     }
   }, [sheetId, confirm]);
@@ -196,8 +274,9 @@ export function DateTimePickerSheet({ value, onChange, minDate }: DateTimePicker
       {
         title: 'Select Time',
         snapPoints: ['55%'],
-        enableScroll: false,
-        keyboardAvoid: false,
+        stackBehavior: 'push',
+        enablePanDownToClose: true,
+        backdropProps: { pressBehavior: 'close' },
       }
     );
   };
@@ -209,13 +288,18 @@ export function DateTimePickerSheet({ value, onChange, minDate }: DateTimePicker
         tab={tab}
         months={months}
         years={years}
-        onSelectMonth={(index) => setCurrentMonth(prev => prev.clone().month(index))}
-        onSelectYear={(year) => setCurrentMonth(prev => prev.clone().year(year))}
-      />,
+onSelectMonth={(month) => {
+  setCurrentMonth(prev => prev.clone().month(month));
+  setSelectedDate(prev => prev.clone().month(month));
+}}onSelectYear={(year) => {
+  setCurrentMonth(prev => prev.clone().year(year));
+  setSelectedDate(prev => prev.clone().year(year));
+}}      />,
       {
         title: tab === 'month' ? 'Select Month' : 'Select Year',
         snapPoints: ['55%'],
-        enableScroll: false,
+        stackBehavior: 'push',
+        backdropProps: { pressBehavior: 'close' },
       }
     );
   };
@@ -317,7 +401,7 @@ export function DateTimePickerSheet({ value, onChange, minDate }: DateTimePicker
               <AppText style={[styles.timeBoxText, { color: theme.brand.primary }]}>{selectedMinute.toString().padStart(2, '0')}</AppText>
             </View>
             <View style={[styles.amPmBox, { backgroundColor: theme.brand.primary + '10', borderColor: theme.brand.primary }]}>
-              <AppText style={[styles.amPm, { color: theme.brand.primary }]}>{selectedHour >= 12 ? 'PM' : 'AM'}</AppText>
+              <AppText style={[styles.amPm, { color: theme.text.primary }]}>{selectedHour >= 12 ? 'PM' : 'AM'}</AppText>
             </View>
           </View>
         </TouchableOpacity>
@@ -339,7 +423,7 @@ const styles = StyleSheet.create({
   todayCell: { borderWidth: 2, borderColor: '#E31837', alignSelf: 'center' },
   dayText: { fontSize: 16, fontWeight: '600' },
   quickSelectRow: { flexDirection: 'row', justifyContent: 'space-between', marginTop: 20, gap: 8 },
-  quickPill: { flex: 1, flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 6, paddingVertical: 10, borderRadius: 20, borderWidth: 1 },
+  quickPill: { flex: 1, flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 6, paddingVertical: 10, paddingHorizontal: 10, borderRadius: 20, borderWidth: 1 },
   quickPillText: { fontSize: 13, fontWeight: '700' },
   divider: { height: 1, marginVertical: 24 },
   timeSection: { gap: 12, alignContent: 'center', justifyContent: 'center', alignItems: 'center' },

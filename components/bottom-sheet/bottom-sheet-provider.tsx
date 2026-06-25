@@ -118,12 +118,15 @@ function SheetRenderer({
   );
 
   return (
-    <BottomSheetModal
+      <BottomSheetModal
       ref={(ref) => {
-        modalRefs.current[sheet.id] = ref;
+        if (ref) modalRefs.current[sheet.id] = ref;
+        else delete modalRefs.current[sheet.id];
       }}
+      name={sheet.id}
       index={0}
       snapPoints={sheet.snapPoints ?? ['70%']}
+      stackBehavior={sheet.stackBehavior ?? 'push'}
       topInset={insets.top + 12}
       bottomInset={sheet.bottomInset ?? 0}
       backdropComponent={renderBackdrop}
@@ -134,7 +137,6 @@ function SheetRenderer({
       keyboardBlurBehavior="restore"
       android_keyboardInputMode="adjustResize"
       onChange={(index) => {
-        if (index === -1) closeSheet(sheet.id);
         sheet.onChange?.(index);
       }}
       onDismiss={() => closeSheet(sheet.id)}>
@@ -179,15 +181,29 @@ export function BottomSheetProvider({ children }: { children: ReactNode }) {
 
   const openSheet = useCallback((content: ReactNode, options: BottomSheetOptions = {}) => {
     const now = Date.now();
-    // if (now - lastOpenedAt.current < 250) return null;
+    if (!options.allowRapidOpen && now - lastOpenedAt.current < 300) return null;
     lastOpenedAt.current = now;
 
+    const id = createSheetId();
     const sheet: Sheet = {
-      id: createSheetId(),
+      id,
       content,
       ...options,
     };
     setSheets((current) => [...current, sheet]);
+
+    let frame = 0;
+    const present = () => {
+      const modalRef = modalRefs.current[id];
+      if (modalRef) {
+        modalRef.present();
+      } else if (frame < 50) {
+        frame += 1;
+        requestAnimationFrame(present);
+      }
+    };
+    requestAnimationFrame(present);
+
     return sheet.id;
   }, []);
 

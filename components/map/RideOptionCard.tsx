@@ -54,7 +54,7 @@ export function RideOptionCard({ option, distanceMeters, selected, onPress }: Pr
       activeOpacity={0.85}
     >
       {/* Price Tag */}
-      <View style={[styles.priceTag, { backgroundColor: theme.brand.primary }]}>
+      <View style={[styles.priceTag, { backgroundColor: theme.bg.surface }]}>
         <AppText style={styles.fare}>${fare.toFixed(0)}</AppText>
       </View>
 
@@ -123,7 +123,7 @@ const styles = StyleSheet.create({
   },
   fare: {
     color: '#FFFFFF',
-    fontSize: 17,
+    fontSize: 10,
     fontWeight: '800',
   },
   carImage: {

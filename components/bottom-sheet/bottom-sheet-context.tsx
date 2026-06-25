@@ -3,6 +3,8 @@ import { ReactNode, createContext, useContext } from 'react';
 export type BottomSheetOptions = {
   title?: string;
   snapPoints?: string[];
+  stackBehavior?: 'push' | 'switch' | 'replace';
+  allowRapidOpen?: boolean;
   showCloseBtn?: boolean;
   onSubmitPress?: (() => void) | null;
   submitLabel?: string;

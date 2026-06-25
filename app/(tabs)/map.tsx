@@ -66,6 +66,8 @@ export default function MapScreen() {
     }
   }, [coords, pickup, dispatch]);
 
+
+  
   // ── Center map on current location ──────────────────────────────────────
   useEffect(() => {
     if (coords && mapRef.current) {
@@ -113,6 +115,12 @@ export default function MapScreen() {
       );
     }
   }, [coords]);
+
+  // ── Reset Booking Flow ────────────────────────────────────────────────────
+  const resetBookingFlow = useCallback(() => {
+    setBookingStep(1);
+    dispatch(setSelectedRideType(null));
+  }, [dispatch]);
 
   // ── Open search overlay ──────────────────────────────────────────────────
   const openSearch = useCallback((field: SearchField) => {
@@ -280,7 +288,10 @@ export default function MapScreen() {
       <LocationSearchOverlay
         visible={searchVisible}
         initialField={searchField}
-        onClose={() => setSearchVisible(false)}
+        onClose={() => {
+          setSearchVisible(false);
+          resetBookingFlow();
+        }}
       />
     </View>
   );
