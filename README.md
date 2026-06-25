@@ -7,6 +7,16 @@ A production-ready **React Native (Expo)** application developed as part of the 
 
 ---
 
+
+## 📥 Downloads
+
+Download and try the latest build of **Rydeu**.
+
+| Download | Link |
+|----------|------|
+| ☁️ Google Drive | [Google Drive Mirror](https://drive.google.com/file/d/1RbdUVGc2QmK1hxJMO-J57OSj_Ot89FYg/view?usp=sharing) |
+
+
 ## Assignment Overview
 
 The objective of this assignment was to develop a React Native application that includes:
