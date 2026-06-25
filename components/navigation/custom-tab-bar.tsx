@@ -2,7 +2,6 @@ import { Ionicons } from '@expo/vector-icons';
 import { BottomTabBarProps } from '@react-navigation/bottom-tabs';
 import { ComponentProps, useEffect, useRef, useState } from 'react';
 import { Animated, Keyboard, Platform, Pressable, StyleSheet, View } from 'react-native';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { AppText } from '@/components/ui/app-text';
 import { useAppTheme } from '@/constants/app-theme';
@@ -14,12 +13,12 @@ const MAX_CAPSULE_WIDTH = 112;
 
 const iconForRoute = (routeName: string, focused: boolean): IconName => {
   if (routeName === 'profile') return focused ? 'person' : 'person-outline';
+  if (routeName === 'map') return focused ? 'map' : 'map-outline';
   return focused ? 'home' : 'home-outline';
 };
 
 export function CustomTabBar({ state, descriptors, navigation }: BottomTabBarProps) {
   const theme = useAppTheme();
-  const insets = useSafeAreaInsets();
   const [layoutWidth, setLayoutWidth] = useState(0);
   const [visible, setVisible] = useState(true);
   const translateX = useRef(new Animated.Value(0)).current;
@@ -60,7 +59,6 @@ export function CustomTabBar({ state, descriptors, navigation }: BottomTabBarPro
         {
           backgroundColor: theme.bg.card,
           borderColor: theme.border.default,
-          paddingBottom: Math.max(insets.bottom, 8),
           shadowColor: theme.shadow,
         },
       ]}>
@@ -82,47 +80,18 @@ export function CustomTabBar({ state, descriptors, navigation }: BottomTabBarPro
       <View style={styles.content}>
         {state.routes.map((route, index) => {
           const { options } = descriptors[route.key];
-          const label =
-            options.tabBarLabel !== undefined
-              ? String(options.tabBarLabel)
-              : options.title !== undefined
-                ? options.title
-                : route.name;
           const focused = state.index === index;
 
-          const onPress = () => {
-            const event = navigation.emit({
-              type: 'tabPress',
-              target: route.key,
-              canPreventDefault: true,
-            });
-
-            if (!focused && !event.defaultPrevented) {
-              navigation.navigate(route.name, route.params);
-            }
-          };
-
           return (
-            <Pressable
+            <TabButton
               key={route.key}
-              accessibilityRole="button"
-              accessibilityState={focused ? { selected: true } : {}}
-              accessibilityLabel={options.tabBarAccessibilityLabel}
-              onLongPress={() => navigation.emit({ type: 'tabLongPress', target: route.key })}
-              onPress={onPress}
-              style={styles.tab}>
-              <Ionicons
-                name={iconForRoute(route.name, focused)}
-                size={22}
-                color={focused ? theme.brand.primary : theme.text.secondary}
-              />
-              <AppText
-                variant="caption"
-                numberOfLines={1}
-                style={[styles.label, { color: focused ? theme.brand.primary : theme.text.secondary }]}>
-                {label}
-              </AppText>
-            </Pressable>
+              route={route}
+              index={index}
+              focused={focused}
+              options={options}
+              navigation={navigation}
+              theme={theme}
+            />
           );
         })}
       </View>
@@ -130,22 +99,100 @@ export function CustomTabBar({ state, descriptors, navigation }: BottomTabBarPro
   );
 }
 
+function TabButton({
+  route,
+  focused,
+  options,
+  navigation,
+  theme,
+}: {
+  route: any;
+  index: number;
+  focused: boolean;
+  options: any;
+  navigation: any;
+  theme: any;
+}) {
+  const scale = useRef(new Animated.Value(1)).current;
+
+  const label =
+    options.tabBarLabel !== undefined
+      ? String(options.tabBarLabel)
+      : options.title !== undefined
+        ? options.title
+        : route.name;
+
+  const onPress = () => {
+    // Tactile spring press feedback
+    Animated.sequence([
+      Animated.timing(scale, {
+        toValue: 0.9,
+        duration: 80,
+        useNativeDriver: true,
+      }),
+      Animated.spring(scale, {
+        toValue: 1,
+        friction: 5,
+        tension: 50,
+        useNativeDriver: true,
+      }),
+    ]).start();
+
+    const event = navigation.emit({
+      type: 'tabPress',
+      target: route.key,
+      canPreventDefault: true,
+    });
+
+    if (!focused && !event.defaultPrevented) {
+      navigation.navigate(route.name, route.params);
+    }
+  };
+
+  return (
+    <Pressable
+      accessibilityRole="button"
+      accessibilityState={focused ? { selected: true } : {}}
+      accessibilityLabel={options.tabBarAccessibilityLabel}
+      onPress={onPress}
+      style={styles.tab}>
+      <Animated.View style={[styles.tabContent, { transform: [{ scale }] }]}>
+        <Ionicons
+          name={iconForRoute(route.name, focused)}
+          size={20}
+          color={focused ? theme.brand.primary : theme.text.secondary}
+        />
+        <AppText
+          variant="caption"
+          numberOfLines={1}
+          style={[
+            styles.label,
+            {
+              color: focused ? theme.brand.primary : theme.text.secondary,
+              fontWeight: focused ? '700' : '500',
+            },
+          ]}>
+          {label}
+        </AppText>
+      </Animated.View>
+    </Pressable>
+  );
+}
+
 const styles = StyleSheet.create({
   container: {
     position: 'absolute',
-    left: 0,
-    right: 0,
-    bottom: 0,
-    minHeight: 72,
-    borderTopLeftRadius: 20,
-    borderTopRightRadius: 20,
+    left: 20,
+    right: 20,
+    bottom: 24,
+    height: 66,
+    borderRadius: 33,
     borderWidth: 1,
-    borderBottomWidth: 0,
-    paddingTop: 10,
-    elevation: 18,
-    shadowOffset: { width: 0, height: -4 },
-    shadowOpacity: 0.14,
-    shadowRadius: 14,
+    elevation: 10,
+    zIndex: 60,
+    shadowOffset: { width: 0, height: 6 },
+    shadowOpacity: 0.12,
+    shadowRadius: 16,
   },
   content: {
     flex: 1,
@@ -154,22 +201,27 @@ const styles = StyleSheet.create({
   },
   capsule: {
     position: 'absolute',
-    top: 10,
-    height: 48,
-    borderRadius: 24,
-    elevation: 4,
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.12,
-    shadowRadius: 10,
+    top: 9,
+    height: 46,
+    borderRadius: 23,
+    elevation: 2,
+    shadowOffset: { width: 0, height: 3 },
+    shadowOpacity: 0.08,
+    shadowRadius: 8,
   },
   tab: {
     flex: 1,
     alignItems: 'center',
     justifyContent: 'center',
-    gap: 1,
     zIndex: 1,
   },
+  tabContent: {
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 2,
+  },
   label: {
+    fontSize: 11,
     textAlign: 'center',
     maxWidth: 96,
   },

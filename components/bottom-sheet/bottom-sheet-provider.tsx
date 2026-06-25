@@ -4,8 +4,8 @@ import {
   BottomSheetModalProvider,
   BottomSheetScrollView,
 } from '@gorhom/bottom-sheet';
-import { ReactNode, createContext, useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react';
-import { BackHandler, Platform, StyleSheet, View } from 'react-native';
+import { ReactNode, useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { BackHandler, KeyboardAvoidingView, Platform, StyleSheet, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import {
@@ -15,42 +15,21 @@ import { __SET_SHEET_FNS } from '@/components/bottom-sheet/use-sheet-controls';
 import { IconButton } from '@/components/ui/app-button';
 import { AppText } from '@/components/ui/app-text';
 import { useAppTheme } from '@/constants/app-theme';
+import { 
+  BottomSheetContext, 
+  BottomSheetContextValue, 
+  BottomSheetOptions, 
+  SheetIdContext, 
+  useBottomSheet, 
+  useSheetId 
+} from './bottom-sheet-context';
 
-export type BottomSheetOptions = {
-  title?: string;
-  snapPoints?: string[];
-  showCloseBtn?: boolean;
-  onSubmitPress?: (() => void) | null;
-  submitLabel?: string;
-  enablePanDownToClose?: boolean;
-  enableScroll?: boolean;
-  keyboardAvoid?: boolean;
-  onChange?: (index: number) => void;
-  backdropProps?: {
-    pressBehavior?: 'close' | 'collapse' | 'none';
-    opacity?: number;
-    color?: string;
-  };
-};
+export { BottomSheetOptions, useBottomSheet, useSheetId };
 
 type Sheet = BottomSheetOptions & {
   id: string;
   content: ReactNode;
 };
-
-type BottomSheetContextValue = {
-  openSheet: (content: ReactNode, options?: BottomSheetOptions) => string | null;
-  closeSheet: (id?: string) => void;
-  updateSheet: (id: string, options: Partial<BottomSheetOptions>) => void;
-};
-
-const BottomSheetContext = createContext<BottomSheetContextValue | null>(null);
-
-export function useBottomSheet() {
-  const value = useContext(BottomSheetContext);
-  if (!value) throw new Error('useBottomSheet must be used within BottomSheetProvider');
-  return value;
-}
 
 const createSheetId = () => Math.random().toString(36).slice(2, 11);
 
@@ -58,13 +37,16 @@ function SheetRenderer({
   sheet,
   closeSheet,
   modalRefs,
+  contextValue,
 }: {
   sheet: Sheet;
   closeSheet: (id?: string) => void;
   modalRefs: React.MutableRefObject<Record<string, BottomSheetModal | null>>;
+  contextValue: BottomSheetContextValue;
 }) {
   const theme = useAppTheme();
   const insets = useSafeAreaInsets();
+  const contentBottomPadding = insets.bottom + 28 + (sheet.contentBottomInset ?? 0);
 
   useEffect(() => {
     let frame = 0;
@@ -132,7 +114,7 @@ function SheetRenderer({
         </View>
       </View>
     ),
-    [closeSheet, sheet, theme.bg.app, theme.border.default, theme.bottomSheet.handle],
+    [closeSheet, sheet, theme.bg.elevated, theme.border.default, theme.bottomSheet.handle],
   );
 
   return (
@@ -143,11 +125,12 @@ function SheetRenderer({
       index={0}
       snapPoints={sheet.snapPoints ?? ['70%']}
       topInset={insets.top + 12}
+      bottomInset={sheet.bottomInset ?? 0}
       backdropComponent={renderBackdrop}
       backgroundStyle={{ backgroundColor: theme.bg.app }}
       handleComponent={renderHandle}
       enablePanDownToClose={sheet.enablePanDownToClose ?? true}
-      keyboardBehavior={sheet.keyboardAvoid === false ? 'extend' : 'interactive'}
+      keyboardBehavior={sheet.keyboardAvoid === false ? undefined : 'extend'}
       keyboardBlurBehavior="restore"
       android_keyboardInputMode="adjustResize"
       onChange={(index) => {
@@ -156,16 +139,27 @@ function SheetRenderer({
       }}
       onDismiss={() => closeSheet(sheet.id)}>
       <BottomSheetEnvironmentProvider isBottomSheet>
-        {sheet.enableScroll === false ? (
-          <View style={styles.content}>{sheet.content}</View>
-        ) : (
-          <BottomSheetScrollView
-            keyboardShouldPersistTaps="handled"
-            showsVerticalScrollIndicator={false}
-            contentContainerStyle={[styles.content, { paddingBottom: insets.bottom + 28 }]}>
-            {sheet.content}
-          </BottomSheetScrollView>
-        )}
+        <BottomSheetContext.Provider value={contextValue}>
+          <SheetIdContext.Provider value={sheet.id}>
+            <KeyboardAvoidingView
+              behavior={Platform.OS === 'ios' ? 'padding' : undefined}
+              style={styles.keyboardAvoidingView}
+              keyboardVerticalOffset={Platform.OS === 'ios' ? 64 : 0}>
+              {sheet.enableScroll === false ? (
+                <View style={[styles.content, { paddingBottom: contentBottomPadding }]}>
+                  {sheet.content}
+                </View>
+              ) : (
+                <BottomSheetScrollView
+                  keyboardShouldPersistTaps="handled"
+                  showsVerticalScrollIndicator={false}
+                  contentContainerStyle={[styles.content, { paddingBottom: contentBottomPadding }]}>
+                  {sheet.content}
+                </BottomSheetScrollView>
+              )}
+            </KeyboardAvoidingView>
+          </SheetIdContext.Provider>
+        </BottomSheetContext.Provider>
       </BottomSheetEnvironmentProvider>
     </BottomSheetModal>
   );
@@ -185,7 +179,7 @@ export function BottomSheetProvider({ children }: { children: ReactNode }) {
 
   const openSheet = useCallback((content: ReactNode, options: BottomSheetOptions = {}) => {
     const now = Date.now();
-    if (now - lastOpenedAt.current < 250) return null;
+    // if (now - lastOpenedAt.current < 250) return null;
     lastOpenedAt.current = now;
 
     const sheet: Sheet = {
@@ -251,6 +245,7 @@ export function BottomSheetProvider({ children }: { children: ReactNode }) {
             closeSheet={closeSheet}
             modalRefs={modalRefs}
             sheet={sheet}
+            contextValue={value}
           />
         ))}
       </BottomSheetContext.Provider>
@@ -293,5 +288,8 @@ const styles = StyleSheet.create({
     paddingHorizontal: 16,
     paddingTop: 12,
     paddingBottom: 32,
+  },
+  keyboardAvoidingView: {
+    flex: 1,
   },
 });
