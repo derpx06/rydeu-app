@@ -3,11 +3,17 @@ import { TypedUseSelectorHook, useDispatch, useSelector } from 'react-redux';
 
 import authReducer from './authSlice';
 import calendarReducer from './calendarSlice';
+import locationReducer from './locationSlice';
+import rideReducer from './rideSlice';
+import themeReducer from './themeSlice';
 
 export const store = configureStore({
   reducer: {
     auth: authReducer,
     calendar: calendarReducer,
+    location: locationReducer,
+    ride: rideReducer,
+    theme: themeReducer,
   },
 });
 

@@ -8,6 +8,9 @@ import {
   loginCustomer,
   restoreStoredSession,
 } from '@/services/auth-service';
+import { resetCalendar } from './calendarSlice';
+import { resetRide } from './rideSlice';
+import { resetLocation } from './locationSlice';
 
 type AuthState = {
   user: AuthUser | null;
@@ -16,6 +19,7 @@ type AuthState = {
   loading: boolean;
   error: string | null;
   hasRestoredSession: boolean;
+  hasCompletedOnboarding: boolean;
 };
 
 const initialState: AuthState = {
@@ -25,6 +29,7 @@ const initialState: AuthState = {
   loading: false,
   error: null,
   hasRestoredSession: false,
+  hasCompletedOnboarding: false,
 };
 
 export const restoreSession = createAsyncThunk<AuthSession | null>('auth/restoreSession', restoreStoredSession);
@@ -40,8 +45,11 @@ export const login = createAsyncThunk<AuthSession, LoginCredentials, { rejectVal
   },
 );
 
-export const logout = createAsyncThunk('auth/logout', async () => {
+export const logout = createAsyncThunk('auth/logout', async (_, { dispatch }) => {
   await clearStoredSession();
+  dispatch(resetCalendar());
+  dispatch(resetRide());
+  dispatch(resetLocation());
   return true;
 });
 
@@ -51,6 +59,9 @@ const authSlice = createSlice({
   reducers: {
     clearAuthError: (state) => {
       state.error = null;
+    },
+    completeOnboarding: (state) => {
+      state.hasCompletedOnboarding = true;
     },
   },
   extraReducers: (builder) => {
@@ -91,5 +102,5 @@ const authSlice = createSlice({
   },
 });
 
-export const { clearAuthError } = authSlice.actions;
+export const { clearAuthError, completeOnboarding } = authSlice.actions;
 export default authSlice.reducer;
